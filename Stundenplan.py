@@ -14,12 +14,14 @@ class Interface(Period):
     Erzeugt Eingabefenster. Wenn schon einige Optionen vorgegeben werden, werden diese auch angezeigt
     """
     def __init__(self, prof=None, subject=None, time=None, day=None):
-        super().__init__(prof, subject, time, day)
-        self.window = tk.Tk()
+        super().__init__(prof, subject, time, day)  # Initialise Period for base info
+        self.window = tk.Tk()   # create window
         self.times = np.arange(1, 7, 1)
         self.days = ["Mo", "Di", "Mi", "Do", "Fr"]
-        self.prof_input, self.subject_input, self.time_input, self.day_input = self.setup_input()
-        self.button()
+        self.prof_input, self.subject_input, self.time_input, self.day_input = self.setup_input()  # create input fields
+        self.confirmation_button()
+        self.addition_button()
+        self.additional_period = False
         self.window.mainloop()
 
     def setup_input(self):
@@ -29,15 +31,14 @@ class Interface(Period):
         day_input = self.opt_input(4, 0, self.days, "Tag")
         return prof_input, subject_input, time_input, day_input
 
-
     def text_input(self, row, column, text, filled_text):
         """
-        Erzeugt ein Texteingabefeld
-        :param int row: y-Position im Fenster
-        :param int column: x-Position im Fenster
-        :param str text: Beschreibung der Eingabe
-        :param str filled_text: Text der schon vor User-Eingabe im Feld steht
-        :return: Eingabefeld name
+        Creates a field for text entry
+        :param int row: y-Position in Window
+        :param int column: x-Position in Window
+        :param str text: Description for User Input
+        :param str filled_text: Text that is to be entered into entry field at creation
+        :return: Entry name
         """
         frame = tk.Frame(master=self.window, relief=tk.RAISED)
         frame.grid(row=row, column=column, padx=1, pady=1)  # Frame positionieren
@@ -54,12 +55,12 @@ class Interface(Period):
 
     def opt_input(self, row, column, options, text):
         """
-        Erzeugt eine Dropdownliste aus options
-        :param int row: y-Position im Fenster
-        :param int column: x-Position im Fenster
-        :param list options: Optionen in der Dropdown-Liste
-        :param str text: Beschreibung der Eingabe
-        :return: gewählte Option var
+        Creats dropdown list with options
+        :param int row: y-Position in Window
+        :param int column: x-Position in Window
+        :param list options: Options in  Dropdown-List
+        :param str text: Description for User Input
+        :return: chosen option var
         """
         frame = tk.Frame(master=self.window, relief=tk.RAISED)
         frame.grid(row=row, column=column, padx=1, pady=1)
@@ -71,18 +72,38 @@ class Interface(Period):
         opts.grid(row=0, column=1)
         return var
 
-    def button(self):
+    def confirmation_button(self):
         """Confirms setup_input"""
         frame_ok = ttk.Frame(master=self.window, relief=tk.RAISED)
         frame_ok.grid(row=5, column=0, padx=1, pady=1)
         button = ttk.Button(text="OK", master=frame_ok, command=self.get_info)
         button.pack()
 
+    def addition_button(self):
+        frame_add = ttk.Frame(master=self.window, relief=tk.RAISED)
+        frame_add.grid(row=6, column=0, padx=1, pady=1)
+        button = ttk.Button(text="Stunde hinzufügen", master=frame_add, command=self.get_additional_info)
+        button.pack()
+
     def get_info(self):
         """
-        Sets the values of the container "Period" to the values written in the respective Field at button push.
+        Sets the values of the container "Period" to the values written in the respective Field at confirmation_button
+        push.
         Closes window after
         """
+        self.prof = self.prof_input.get()
+        self.subject = self.subject_input.get()
+        self.time = self.time_input.get()
+        self.day = self.day_input.get()
+        self.window.destroy()
+
+    def get_additional_info(self):
+        """
+        In case an additional Period with somewhat similar information is wished to be created. Changes a flag which
+        can be tested in the Interface() calling function to determine if new interface is to be created
+        :return:
+        """
+        self.additional_period = True
         self.prof = self.prof_input.get()
         self.subject = self.subject_input.get()
         self.time = self.time_input.get()

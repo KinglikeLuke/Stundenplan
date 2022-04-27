@@ -1,4 +1,4 @@
 import Stundenplan
 
-test = Stundenplan.Interface(prof="Stöck", subject="quantum")
+test = Stundenplan.Interface()
 print(test.prof)
