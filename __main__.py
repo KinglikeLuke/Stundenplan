@@ -1,4 +1,4 @@
 import Stundenplan
 
 test = Stundenplan.Interface()
-print(test.Period.prof)
+print(test.prof)
