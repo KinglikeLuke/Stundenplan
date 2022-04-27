@@ -20,9 +20,7 @@ class Interface(Period):
         self.days = ["Mo", "Di", "Mi", "Do", "Fr"]
         self.prof_input, self.subject_input, self.time_input, self.day_input = self.setup_input()
         self.button()
-        print("here")
         self.window.mainloop()
-        print("here")
 
     def setup_input(self):
         prof_input = self.text_input(0, 0, "Name des Dozierenden", self.prof)
@@ -77,7 +75,7 @@ class Interface(Period):
         """Confirms setup_input"""
         frame_ok = ttk.Frame(master=self.window, relief=tk.RAISED)
         frame_ok.grid(row=5, column=0, padx=1, pady=1)
-        button = ttk.Button(text="OK", master=frame_ok, command=self.get_info())
+        button = ttk.Button(text="OK", master=frame_ok, command=self.get_info)
         button.pack()
 
     def get_info(self):
@@ -85,9 +83,8 @@ class Interface(Period):
         Sets the values of the container "Period" to the values written in the respective Field at button push.
         Closes window after
         """
-        print("here")
         self.prof = self.prof_input.get()
         self.subject = self.subject_input.get()
         self.time = self.time_input.get()
         self.day = self.day_input.get()
-        #self.window.destroy()
+        self.window.destroy()
