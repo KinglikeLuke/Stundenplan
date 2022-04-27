@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import numpy as np
 import pandas as pd
+import numpy as np
 
 
 class Period:
@@ -13,15 +14,18 @@ class Interface(Period):
     """
     Erzeugt Eingabefenster. Wenn schon einige Optionen vorgegeben werden, werden diese auch angezeigt
     """
+
     def __init__(self, prof=None, subject=None, time=None, day=None):
         super().__init__(prof, subject, time, day)  # Initialise Period for base info
-        self.window = tk.Tk()   # create window
+        self.window = tk.Tk()  # create window
         self.times = np.arange(1, 7, 1)
         self.days = ["Mo", "Di", "Mi", "Do", "Fr"]
         self.prof_input, self.subject_input, self.time_input, self.day_input = self.setup_input()  # create input fields
-        self.confirmation_button()
-        self.addition_button()
+        self.button(5, 0, "OK", self.get_info)
+        self.button(6, 0, "Zusätzliche Stunde", self.get_additional_info)
+        self.button(7, 0, "Eingabe beenden", self.get_final_info)
         self.additional_period = False
+        self.cont_input = True
         self.window.mainloop()
 
     def setup_input(self):
@@ -67,22 +71,15 @@ class Interface(Period):
         lbl = tk.Label(text=text + ":",
                        master=frame)
         lbl.grid(row=0, column=0)
-        var = tk.StringVar(self.window)                         # Rückgabevariable erzeugen
+        var = tk.StringVar(self.window)  # Rückgabevariable erzeugen
         opts = ttk.OptionMenu(frame, var, options[0], *options)
         opts.grid(row=0, column=1)
         return var
 
-    def confirmation_button(self):
-        """Confirms setup_input"""
-        frame_ok = ttk.Frame(master=self.window, relief=tk.RAISED)
-        frame_ok.grid(row=5, column=0, padx=1, pady=1)
-        button = ttk.Button(text="OK", master=frame_ok, command=self.get_info)
-        button.pack()
-
-    def addition_button(self):
-        frame_add = ttk.Frame(master=self.window, relief=tk.RAISED)
-        frame_add.grid(row=6, column=0, padx=1, pady=1)
-        button = ttk.Button(text="Stunde hinzufügen", master=frame_add, command=self.get_additional_info)
+    def button(self, row, column, text, command):
+        frame = ttk.Frame(master=self.window, relief=tk.RAISED)
+        frame.grid(row=row, column=column, padx=1, pady=1)
+        button = ttk.Button(text=text, master=frame, command=command)
         button.pack()
 
     def get_info(self):
@@ -104,8 +101,47 @@ class Interface(Period):
         :return:
         """
         self.additional_period = True
-        self.prof = self.prof_input.get()
-        self.subject = self.subject_input.get()
-        self.time = self.time_input.get()
-        self.day = self.day_input.get()
-        self.window.destroy()
+        self.get_info()
+
+    def get_final_info(self):
+        self.cont_input = False
+        self.get_info()
+
+
+class Timetable:
+    def __init__(self):
+        self.periods = []
+        self.build_timetable()
+
+    def build_timetable(self):
+        cont_input = True
+        while cont_input:
+            cont_input = self.get_period()       # get user inputs, also check if the input is stopped
+
+
+    def get_period(self, prof=None, subject=None):
+        """
+        Gets Period names from Interface class, adds them to periods list
+        :param prof:
+        :param subject:
+        :return: bool cont_input: whether new input should be read in
+        """
+        entered_period = Interface(prof, subject)
+
+        # check if there is a subject to write. If not, check if they want to. If they do, let them try again
+        if not entered_period.subject:
+            if not entered_period.cont_input:
+                return entered_period.cont_input
+            else:
+                print("Zum Beenden Eingabe beenden drücken!")
+                self.get_period(entered_period.prof)
+
+        else:
+            # add a Periods class item to the list
+            self.periods.append(Period(entered_period.prof,
+                                       entered_period.subject,
+                                       entered_period.time,
+                                       entered_period.day))
+            if entered_period.additional_period:
+                self.get_period(entered_period.prof, entered_period.subject)
+            return entered_period.cont_input
