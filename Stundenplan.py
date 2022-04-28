@@ -7,7 +7,17 @@ import numpy as np
 
 class Period:
     def __init__(self, prof=None, subject=None, time=None, day=None):
-        self.subject, self.prof, self.time, self.day = subject, prof, time, day
+        self.subject, self.prof, self.time = subject, prof, time
+        self.times = list((np.arange(1, 7, 1)))
+        self.days = ["Mo", "Di", "Mi", "Do", "Fr"]
+        if day and day not in self.days:
+            raise TypeError("Ungültiger Wochentag!")
+        self.day = day
+
+    # def convert_to_2d_indices(self):
+    #     x_coord = int(self.days.index(self.day))
+    #     y_coord = int(self.time) - 1
+    #     return x_coord, y_coord
 
 
 class Interface(Period):
@@ -18,11 +28,9 @@ class Interface(Period):
     def __init__(self, prof=None, subject=None, time=None, day=None):
         super().__init__(prof, subject, time, day)  # Initialise Period for base info
         self.window = tk.Tk()  # create window
-        self.times = np.arange(1, 7, 1)
-        self.days = ["Mo", "Di", "Mi", "Do", "Fr"]
         self.prof_input, self.subject_input, self.time_input, self.day_input = self.setup_input()  # create input fields
         self.button(5, 0, "OK", self.get_info)
-        self.button(6, 0, "Zusätzliche Stunde", self.get_additional_info)
+        self.button(6, 0, "Zusätzliche ähnliche Stunde", self.get_additional_info)
         self.button(7, 0, "Eingabe beenden", self.get_final_info)
         self.additional_period = False
         self.cont_input = True
@@ -77,6 +85,14 @@ class Interface(Period):
         return var
 
     def button(self, row, column, text, command):
+        """
+        Creates a button assigned to the specified command
+        :param int row: Position
+        :param int column: Position
+        :param str text: Text on the button
+        :param function command: Command to be executed on buttonpress
+        :return:
+        """
         frame = ttk.Frame(master=self.window, relief=tk.RAISED)
         frame.grid(row=row, column=column, padx=1, pady=1)
         button = ttk.Button(text=text, master=frame, command=command)
@@ -110,7 +126,8 @@ class Interface(Period):
 
 class Timetable:
     def __init__(self):
-        self.periods = []
+        self.frame = pd.DataFrame(columns=Period().days, index=Period().times)
+
         self.build_timetable()
 
     def build_timetable(self):
@@ -127,21 +144,19 @@ class Timetable:
         :return: bool cont_input: whether new input should be read in
         """
         entered_period = Interface(prof, subject)
-
+        cont_input = entered_period.cont_input
         # check if there is a subject to write. If not, check if they want to. If they do, let them try again
         if not entered_period.subject:
-            if not entered_period.cont_input:
-                return entered_period.cont_input
+            if not cont_input:
+                return cont_input
             else:
-                print("Zum Beenden Eingabe beenden drücken!")
+                print("Zum Beenden 'Eingabe beenden' drücken!")
                 self.get_period(entered_period.prof)
 
         else:
-            # add a Periods class item to the list
-            self.periods.append(Period(entered_period.prof,
-                                       entered_period.subject,
-                                       entered_period.time,
-                                       entered_period.day))
+            # add a Periods class item to the stundenplan frame. The row indices are created as int, so the str from
+            # Period() has to be converted...
+            self.frame.loc[int(entered_period.time), entered_period.day] = entered_period.prof + entered_period.subject
             if entered_period.additional_period:
-                self.get_period(entered_period.prof, entered_period.subject)
-            return entered_period.cont_input
+                cont_input = self.get_period(entered_period.prof, entered_period.subject)   # to notice an end input
+            return cont_input
