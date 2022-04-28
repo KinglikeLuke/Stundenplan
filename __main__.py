@@ -1,4 +1,4 @@
 import Stundenplan
 
-test = Stundenplan.Timetable()
-print(test.frame)
+stundenplan = Stundenplan.Timetable()
+raw_prof, raw_subject = stundenplan.build_timetable()

@@ -126,15 +126,14 @@ class Interface(Period):
 
 class Timetable:
     def __init__(self):
-        self.frame = pd.DataFrame(columns=Period().days, index=Period().times)
-
-        self.build_timetable()
+        self.prof_frame = pd.DataFrame(columns=Period().days, index=Period().times)
+        self.subject_frame = pd.DataFrame(columns=Period().days, index=Period().times)
 
     def build_timetable(self):
         cont_input = True
         while cont_input:
             cont_input = self.get_period()       # get user inputs, also check if the input is stopped
-
+        return self.prof_frame, self.subject_frame
 
     def get_period(self, prof=None, subject=None):
         """
@@ -156,7 +155,8 @@ class Timetable:
         else:
             # add a Periods class item to the stundenplan frame. The row indices are created as int, so the str from
             # Period() has to be converted...
-            self.frame.loc[int(entered_period.time), entered_period.day] = entered_period.prof + entered_period.subject
+            self.prof_frame.loc[int(entered_period.time), entered_period.day] = entered_period.prof
+            self.subject_frame.loc[int(entered_period.time), entered_period.day] = entered_period.subject
             if entered_period.additional_period:
-                cont_input = self.get_period(entered_period.prof, entered_period.subject)   # to notice an end input
+                cont_input = self.get_period(entered_period.prof, entered_period.subject)   # to notice an end to input
             return cont_input
