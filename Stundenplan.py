@@ -14,11 +14,6 @@ class Period:
             raise TypeError("Ungültiger Wochentag!")
         self.day = day
 
-    # def convert_to_2d_indices(self):
-    #     x_coord = int(self.days.index(self.day))
-    #     y_coord = int(self.time) - 1
-    #     return x_coord, y_coord
-
 
 class Interface(Period):
     """
@@ -127,13 +122,14 @@ class Interface(Period):
 class Timetable:
     def __init__(self):
         self.prof_frame = pd.DataFrame(columns=Period().days, index=Period().times)
-        self.subject_frame = pd.DataFrame(columns=Period().days, index=Period().times)
+        self.subj_frame = pd.DataFrame(columns=Period().days, index=Period().times)
+        self.build_timetable()
 
     def build_timetable(self):
         cont_input = True
         while cont_input:
             cont_input = self.get_period()       # get user inputs, also check if the input is stopped
-        return self.prof_frame, self.subject_frame
+        return self.prof_frame, self.subj_frame
 
     def get_period(self, prof=None, subject=None):
         """
@@ -142,6 +138,7 @@ class Timetable:
         :param subject:
         :return: bool cont_input: whether new input should be read in
         """
+
         entered_period = Interface(prof, subject)
         cont_input = entered_period.cont_input
         # check if there is a subject to write. If not, check if they want to. If they do, let them try again
@@ -156,7 +153,21 @@ class Timetable:
             # add a Periods class item to the stundenplan frame. The row indices are created as int, so the str from
             # Period() has to be converted...
             self.prof_frame.loc[int(entered_period.time), entered_period.day] = entered_period.prof
-            self.subject_frame.loc[int(entered_period.time), entered_period.day] = entered_period.subject
+            self.subj_frame.loc[int(entered_period.time), entered_period.day] = entered_period.subject
             if entered_period.additional_period:
                 cont_input = self.get_period(entered_period.prof, entered_period.subject)   # to notice an end to input
             return cont_input
+
+    def draw_timetable(self):
+        prof_table = self.prof_frame
+        prof_table[prof_table.isnull()] = " "
+        subj_table = self.subj_frame
+        subj_table[subj_table.isnull()] = " "
+        latex_string = ""
+        for i in self.prof_frame.columns:
+            for j in self.prof_frame.index:
+                prof = prof_table.loc[int(j), i]
+                subj = subj_table.loc[int(j), i]
+                latex_string = latex_string + r"\multicolumn{1}{p{4cm}|}{%s \newline %s} &" % (prof, subj)
+            latex_string = latex_string + r"\\ "
+        print(latex_string)
