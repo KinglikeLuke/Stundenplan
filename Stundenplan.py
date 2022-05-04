@@ -128,7 +128,7 @@ class Timetable:
     def build_timetable(self):
         cont_input = True
         while cont_input:
-            cont_input = self.get_period()       # get user inputs, also check if the input is stopped
+            cont_input = self.get_period()  # get user inputs, also check if the input is stopped
         return self.prof_frame, self.subj_frame
 
     def get_period(self, prof=None, subject=None):
@@ -155,7 +155,7 @@ class Timetable:
             self.prof_frame.loc[int(entered_period.time), entered_period.day] = entered_period.prof
             self.subj_frame.loc[int(entered_period.time), entered_period.day] = entered_period.subject
             if entered_period.additional_period:
-                cont_input = self.get_period(entered_period.prof, entered_period.subject)   # to notice an end to input
+                cont_input = self.get_period(entered_period.prof, entered_period.subject)  # to notice an end to input
             return cont_input
 
     def draw_timetable(self):
@@ -163,11 +163,22 @@ class Timetable:
         prof_table[prof_table.isnull()] = " "
         subj_table = self.subj_frame
         subj_table[subj_table.isnull()] = " "
-        latex_string = ""
+        time_verbose = [r"\begin{tabular}{@{}c@{}} 1. DS \\ 7:30-9:00 \end{tabular}",
+                        r"\begin{tabular}{@{}c@{}} 2. DS \\ 9:20-10:50 \end{tabular}",
+                        r"\begin{tabular}{@{}c@{}} 3. DS \\ 11:10-12:40 \end{tabular}",
+                        r"\begin{tabular}{@{}c@{}} 4. DS \\ 13:00-14:30 \end{tabular}",
+                        r"\begin{tabular}{@{}c@{}} 5. DS \\ 14:50-16:20 \end{tabular}",
+                        r"\begin{tabular}{@{}c@{}} 6. DS \\ 16:40-18:10 \end{tabular}"
+                        ]
+        latex_string = "&"
         for i in self.prof_frame.columns:
-            for j in self.prof_frame.index:
-                prof = prof_table.loc[int(j), i]
-                subj = subj_table.loc[int(j), i]
-                latex_string = latex_string + r"\multicolumn{1}{p{4cm}|}{%s \newline %s} &" % (prof, subj)
-            latex_string = latex_string + r"\\ "
+            latex_string = latex_string + r"%s &" % i
+        latex_string = latex_string[:-1] + r"\\ \hline"
+        for i in self.prof_frame.index:
+            latex_string = latex_string + r"%s &" % time_verbose[int(i) - 1]
+            for j in self.prof_frame.columns:
+                prof = prof_table.loc[int(i), j]
+                subj = subj_table.loc[int(i), j]
+                latex_string = latex_string + r"\begin{tabular}{@{}c@{}}%s \\ %s\end{tabular}&" % (prof, subj)
+            latex_string = latex_string[:-1] + r"\\ \hline "
         print(latex_string)
