@@ -1,8 +1,12 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-import numpy as np
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "sans-serif",
+    "font.sans-serif": ["Helvetica"]})
 
 
 class Period:
@@ -170,7 +174,9 @@ class Timetable:
                         r"\begin{tabular}{@{}c@{}} 5. DS \\ 14:50-16:20 \end{tabular}",
                         r"\begin{tabular}{@{}c@{}} 6. DS \\ 16:40-18:10 \end{tabular}"
                         ]
-        latex_string = "&"
+        latex_string = (r"\begin{table}[] "
+                        r"\centering "
+                        r"\begin{tabular}{c|c|c|c|c|c} &")
         for i in self.prof_frame.columns:
             latex_string = latex_string + r"%s &" % i
         latex_string = latex_string[:-1] + r"\\ \hline"
@@ -181,4 +187,14 @@ class Timetable:
                 subj = subj_table.loc[int(i), j]
                 latex_string = latex_string + r"\begin{tabular}{@{}c@{}}%s \\ %s\end{tabular}&" % (prof, subj)
             latex_string = latex_string[:-1] + r"\\ \hline "
-        print(latex_string)
+        latex_string = latex_string + (r"\end{tabular}"
+                                       r"\caption{Stundenplan}"
+                                       r"\end{table}"
+                                       r"\end{document}")
+        fig = plt.figure()
+        ax = fig.subplots()
+        ax.text(0.3, 0.3, latex_string)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.axis('off')
+        fig.savefig("Stundenplan.pdf")
