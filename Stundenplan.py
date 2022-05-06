@@ -196,13 +196,15 @@ class Timetable:
         :param fig: Gezeichneter Stundenplan
         :return:
         """
+        path = os.path.expanduser(f"~/Documents/{self.directory}")
+        print(path)
         try:
-            os.makedirs(f'./{self.directory}/')
+            os.makedirs(f'{path}/')
         except OSError as exc:
             pass
-        self.prof_frame.to_csv(f"./{self.directory}/{title}_prof_raw")
-        self.subj_frame.to_csv(f"./{self.directory}/{title}_subj_raw")
-        fig.savefig(f"./{self.directory}/{title}_Stundenplan.pdf")
+        self.prof_frame.to_csv(f"{path}/{title}_prof_raw")
+        self.subj_frame.to_csv(f"{path}/{title}_subj_raw")
+        fig.savefig(f"{path}/{title}_Stundenplan.pdf")
 
     def draw_timetable(self, title):
         """
