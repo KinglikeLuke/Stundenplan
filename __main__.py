@@ -1,4 +1,4 @@
 import Stundenplan
 
-stundenplan = Stundenplan.Timetable()
-stundenplan.draw_timetable()
+stundenplan = Stundenplan.Timetable("LukasK")
+stundenplan.draw_timetable("LukasP")
