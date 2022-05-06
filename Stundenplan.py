@@ -190,6 +190,12 @@ class Timetable:
             return cont_input
 
     def save_timetable(self, title, fig):
+        """
+        Speichert gezeichneten Stundenplan und die Rohdaten in self.directory, was wenn nötig auch erstellt wird.
+        :param title: Titel des Stundenplans
+        :param fig: Gezeichneter Stundenplan
+        :return:
+        """
         try:
             os.makedirs(f'./{self.directory}/')
         except OSError as exc:
@@ -226,7 +232,6 @@ class Timetable:
             latex_string = latex_string[:-1] + r"\\ \hline "
 
         latex_string = latex_string + (r"\end{tabular}"
-                                       r"\caption{Stundenplan}"
                                        r"\end{table}"
                                        r"\end{document}")
 
