@@ -105,7 +105,7 @@ class Interface(Period):
         """
         time = self.time_input.get()
         day = self.day_input.get()
-        if self.prof_frame.loc[int(time), day]:
+        if self.subj_frame.loc[int(time), day]:
             self.prof = self.prof_frame.loc[int(time), day]
             self.subject = self.subj_frame.loc[int(time), day]
             if not init:
@@ -145,10 +145,12 @@ class Timetable:
         """
         self.directory = "SavedTimetables"
         if timetable_name:
-            self.prof_frame = pd.read_csv(f'./{self.directory}/{timetable_name}_prof_raw', index_col=0,
+            path = os.path.expanduser(f"~/Documents/{self.directory}")
+            self.prof_frame = pd.read_csv(f'{path}/{timetable_name}_prof_raw', index_col=0,
                                           keep_default_na=False)
-            self.subj_frame = pd.read_csv(f'./{self.directory}/{timetable_name}_subj_raw', index_col=0,
+            self.subj_frame = pd.read_csv(f'{path}/{timetable_name}_subj_raw', index_col=0,
                                           keep_default_na=False)
+            print(self.subj_frame)
 
         else:
             self.prof_frame = pd.DataFrame(columns=Period().days, index=Period().times)
@@ -172,22 +174,13 @@ class Timetable:
         """
         entered_period = Interface(prof=prof, subject=subject, prof_frame=self.prof_frame, subj_frame=self.subj_frame)
         cont_input = entered_period.cont_input
-        # check if there is a subject to write. If not, check if they want to. If they do, let them try again
-        if not entered_period.subject:
-            if not cont_input:
-                return cont_input
-            else:
-                print("Zum Beenden 'Eingabe beenden' drücken!")
-                self.get_period(entered_period.prof)
-
-        else:
-            # add a Periods class item to the stundenplan frame. The row indices are created as int, so the str from
-            # Period() has to be converted...
-            self.prof_frame.loc[int(entered_period.time), entered_period.day] = entered_period.prof
-            self.subj_frame.loc[int(entered_period.time), entered_period.day] = entered_period.subject
-            if entered_period.additional_period:
-                cont_input = self.get_period(entered_period.prof, entered_period.subject)  # to notice an end to input
-            return cont_input
+        # add a Periods class item to the stundenplan frame. The row indices are created as int, so the str from
+        # Period() has to be converted...
+        self.prof_frame.loc[int(entered_period.time), entered_period.day] = entered_period.prof
+        self.subj_frame.loc[int(entered_period.time), entered_period.day] = entered_period.subject
+        if entered_period.additional_period:
+            cont_input = self.get_period(entered_period.prof, entered_period.subject)  # to notice an end to input
+        return cont_input
 
     def save_timetable(self, title, fig):
         """
@@ -197,7 +190,6 @@ class Timetable:
         :return:
         """
         path = os.path.expanduser(f"~/Documents/{self.directory}")
-        print(path)
         try:
             os.makedirs(f'{path}/')
         except OSError as exc:
