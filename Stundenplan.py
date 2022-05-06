@@ -145,7 +145,7 @@ class Timetable:
         """
         self.directory = "SavedTimetables"
         if timetable_name:
-            path = os.path.expanduser(f"~/Documents/{self.directory}")
+            path = os.path.expanduser(f"~/Documents/{self.directory}/{timetable_name}")
             self.prof_frame = pd.read_csv(f'{path}/{timetable_name}_prof_raw', index_col=0,
                                           keep_default_na=False)
             self.subj_frame = pd.read_csv(f'{path}/{timetable_name}_subj_raw', index_col=0,
@@ -189,9 +189,9 @@ class Timetable:
         :param fig: Gezeichneter Stundenplan
         :return:
         """
-        path = os.path.expanduser(f"~/Documents/{self.directory}")
+        path = os.path.expanduser(f"~/Documents/{self.directory}/{title}")
         try:
-            os.makedirs(f'{path}/')
+            os.makedirs(f'{path}/{title}')
         except OSError as exc:
             pass
         self.prof_frame.to_csv(f"{path}/{title}_prof_raw")
